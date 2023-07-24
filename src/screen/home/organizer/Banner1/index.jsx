@@ -22,7 +22,7 @@ function Banner1() {
             width="22px"
             onClick={() => alert('Hi!')}
           />
-          <span className='font-poppins text-white text-base ml-2 '>New Meeting</span>
+          <span className='font-poppins text-white text-base ml-2 '>New Meetng</span>
         </button>
       </div>
     </div>
