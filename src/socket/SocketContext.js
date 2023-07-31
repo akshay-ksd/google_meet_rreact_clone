@@ -12,7 +12,8 @@ const ContextProvider =({children})=>{
     const [call,setCall] = useState({});
     const [callAccepted,setCallAccepted] = useState(false);
     const [callEnded,setCallEnded] = useState(false);
-    const [name,setName] = useState("")
+    const [name,setName] = useState("");
+    const [roomId,setRoomId] = useState(null);
 
     const myVideo = useRef();
     const userVideo = useRef();
@@ -24,13 +25,22 @@ const ContextProvider =({children})=>{
             setStream(currentStream);
             // myVideo.current.srcObject = currentStream;
         });
-
+  
         socket.on("me",(id)=>{setMe(id)});
 
         socket.on("callUser",({from,name:callerName,signal})=>{
             setCall({isReceivedCall:true,from,name:callerName,signal})
         })
     },[])
+    function generateRandom4DigitNumber() {
+        const min = 1000; // Minimum 4-digit number (1000)
+        const max = 9999; // Maximum 4-digit number (9999)
+      
+        // Generate a random number between min and max (inclusive)
+        const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+      
+        return randomNumber;
+    }
 
     const answerCall =()=> {
         setCallAccepted(true);
@@ -74,6 +84,13 @@ const ContextProvider =({children})=>{
         window.location.reload();
     }
 
+    const createRoom =()=>{
+        const rId = generateRandom4DigitNumber()
+        socket.emit("createRoom", rId, (acknowledgment) => {
+            setRoomId(rId)
+        });
+    }
+
     return (
         <SocketContext.Provider value={{
             call,
@@ -87,7 +104,9 @@ const ContextProvider =({children})=>{
             me,
             callUser,
             leaveCall,
-            answerCall
+            answerCall,
+            createRoom,
+            roomId
         }}>
             {children}
         </SocketContext.Provider>

@@ -1,9 +1,24 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { VideocamOutline, KeypadOutline } from "react-ionicons";
+import PopUp from "../../molecules/popUp/PopUp";
+import { SocketContext } from "../../../../socket/SocketContext";
+import { useNavigate } from "react-router-dom";
 
 function Banner1() {
-  const [inputFocus, setInputFocus] = useState(false);
+  const { createRoom,roomId} = useContext(SocketContext)
 
+  const [inputFocus, setInputFocus] = useState(false);
+  const [newMeetingPopUp,setPop] = useState(false);
+
+  const navigation = useNavigate()
+
+  useEffect(()=>{
+    if(roomId){
+      setTimeout(() => {
+        setPop(false)
+      }, 2000);
+    }
+  },[roomId])
   const handleInputFocus = () => {
     setInputFocus(true);
   };
@@ -11,6 +26,14 @@ function Banner1() {
   const handleInputBlur = () => {
     setInputFocus(false);
   };
+
+  const createNewMeeting =()=>{
+    setPop(true)
+  }
+
+  const cancelCreating =()=> {
+    setPop(false)
+  }
   return (
     <div className="w-1/2">
       <div className="pl-11">
@@ -31,12 +54,13 @@ function Banner1() {
       </div>
 
       <div className="pt-10 flex pl-11">
-        <button className="flex p-3 bg-blue-500 items-center justify-evenly rounded-md shadow-md">
+        <button className="flex p-3 bg-blue-500 items-center justify-evenly rounded-md shadow-md"
+                onClick={createNewMeeting}>
           <VideocamOutline
             color={"white"}
             height="22px"
             width="22px"
-            onClick={() => alert("Hi!")}
+            // onClick={() => alert("Hi!")}
           />
           <span className="font-poppins text-white text-base ml-2 ">
             New Meeting
@@ -70,6 +94,9 @@ function Banner1() {
           </button>
         )}
       </div>
+      {
+        newMeetingPopUp && <PopUp closeMeeting={cancelCreating} createRoom={()=>createRoom()}/>
+      }
     </div>
   );
 }
