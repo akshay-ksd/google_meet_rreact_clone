@@ -20,18 +20,30 @@ const ContextProvider =({children})=>{
     const connectionRef = useRef();
      
     useEffect(()=>{
-        // navigator.mediaDevices.getUserMedia({audio:true,video:true})
-        // .then((currentStream)=>{
-        //     setStream(currentStream);
-        //     // myVideo.current.srcObject = currentStream;
-        // });
-  
         socket.on("me",(id)=>{setMe(id)});
 
         socket.on("callUser",({from,name:callerName,signal})=>{
             setCall({isReceivedCall:true,from,name:callerName,signal})
         })
+
+        socket.on("newUser",id=>{
+            console.log("id",id)
+        })
     },[])
+
+    const loadOwnVideo =()=> {
+        navigator.mediaDevices.getUserMedia({ audio: true, video: true })
+        .then((currentStream) => {
+          setStream(currentStream);
+          if (myVideo.current) {
+            myVideo.current.srcObject = currentStream;
+          }
+          console.log("myVideo.current", currentStream);
+        })
+        .catch((error) => {
+          console.error('Error accessing media devices:', error);
+        });
+    }
     function generateRandom4DigitNumber() {
         const min = 1000; // Minimum 4-digit number (1000)
         const max = 9999; // Maximum 4-digit number (9999)
@@ -89,6 +101,12 @@ const ContextProvider =({children})=>{
         socket.emit("createRoom", rId, (acknowledgment) => {
             setRoomId(rId)
         });
+
+       
+    }
+
+    const joinRoom =(id)=> {
+        socket.emit("joinRoom",id)
     }
 
     return (
@@ -106,7 +124,9 @@ const ContextProvider =({children})=>{
             leaveCall,
             answerCall,
             createRoom,
-            roomId
+            roomId,
+            loadOwnVideo,
+            joinRoom
         }}>
             {children}
         </SocketContext.Provider>

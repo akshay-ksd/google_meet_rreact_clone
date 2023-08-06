@@ -1,38 +1,56 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { VideocamOutline, KeypadOutline } from "react-ionicons";
 import PopUp from "../../molecules/popUp/PopUp";
 import { SocketContext } from "../../../../socket/SocketContext";
 import { useNavigate } from "react-router-dom";
 
 function Banner1() {
-  const { createRoom,roomId} = useContext(SocketContext)
+  const { createRoom, roomId, joinRoom } = useContext(SocketContext)
 
   const [inputFocus, setInputFocus] = useState(false);
-  const [newMeetingPopUp,setPop] = useState(false);
+  const [newMeetingPopUp, setPop] = useState(false);
+  const [disabled,setDisabled] = useState(true)
+
+  const joinRoomId = useRef();
 
   const navigation = useNavigate()
 
-  useEffect(()=>{
-    if(roomId){
+  useEffect(() => {
+    if (roomId) {
       setTimeout(() => {
         setPop(false)
       }, 2000);
     }
-  },[roomId])
+  }, [roomId])
   const handleInputFocus = () => {
     setInputFocus(true);
   };
 
   const handleInputBlur = () => {
-    setInputFocus(false);
+    if (!joinRoomId.current) {
+      setInputFocus(false);
+    }
   };
 
-  const createNewMeeting =()=>{
+  const createNewMeeting = () => {
     setPop(true)
   }
 
-  const cancelCreating =()=> {
+  const cancelCreating = () => {
     setPop(false)
+  }
+
+  const handleChange = (event) => {
+    joinRoomId.current = event.target.value;
+    if(joinRoomId.current&&joinRoomId.current?.length == 4){
+      setDisabled(false)
+    }else{
+      setDisabled(true)
+    }
+  };
+
+  const joinTheRoom =()=>{
+    joinRoom(joinRoomId.current)
   }
   return (
     <div className="w-1/2">
@@ -55,12 +73,12 @@ function Banner1() {
 
       <div className="pt-10 flex pl-11">
         <button className="flex p-3 bg-blue-500 items-center justify-evenly rounded-md shadow-md"
-                onClick={createNewMeeting}>
+          onClick={createNewMeeting}>
           <VideocamOutline
             color={"white"}
             height="22px"
             width="22px"
-            // onClick={() => alert("Hi!")}
+          // onClick={() => alert("Hi!")}
           />
           <span className="font-poppins text-white text-base ml-2 ">
             New Meeting
@@ -68,9 +86,8 @@ function Banner1() {
         </button>
 
         <div
-          className={`p-3  ${inputFocus ? "border-2" : "border"} ${
-            inputFocus ? "border-blue-500" : "border-gray-500"
-          } ml-5 rounded-md flex items-center`}
+          className={`p-3  ${inputFocus ? "border-2" : "border"} ${inputFocus ? "border-blue-500" : "border-gray-500"
+            } ml-5 rounded-md flex items-center`}
         >
           <KeypadOutline
             color={"black"}
@@ -83,19 +100,21 @@ function Banner1() {
             onFocus={handleInputFocus}
             onBlur={handleInputBlur}
             placeholder="Enter a code or room id"
+            onChange={handleChange}
+            maxLength={4}
           />
         </div>
 
         {inputFocus && (
-          <button className="p-3 items-center justify-center rounded-md ml-3">
-            <span className="font-poppins text-gray-500 text-base">
+          <button className="p-3 items-center justify-center rounded-md ml-3" disabled={disabled} onClick={joinTheRoom}>
+            <span className={`font-poppins ${disabled?"text-gray-500":"text-blue-500"} text-base`}>
               Join
             </span>
           </button>
         )}
       </div>
       {
-        newMeetingPopUp && <PopUp closeMeeting={cancelCreating} createRoom={()=>createRoom()}/>
+        newMeetingPopUp && <PopUp closeMeeting={cancelCreating} createRoom={() => createRoom()} />
       }
     </div>
   );

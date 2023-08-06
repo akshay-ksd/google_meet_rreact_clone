@@ -1,16 +1,19 @@
 import React, { useState } from "react";
-
+import { useContext } from "react";
+import { SocketContext } from "../../../../socket/SocketContext";
 const Header = () => {
   const [mode, setMode] = useState("M");
+
+  const {roomId} = useContext(SocketContext);
 
   const changeMode = (m) => {
     setMode(m);
   };
   return (
-    <div className="w-full h-12 bg-black flex items-center">
+    <div className="w-full h-24 bg-black flex items-center">
       <div className="px-5">
         <p className="font-poppins text-xs text-gray-300">
-          End-To-End Confrense
+          Room Id : {roomId}
         </p>
         <p className="font-poppins text-md  text-gray-50">Video Call Started</p>
       </div>
