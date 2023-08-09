@@ -13,7 +13,7 @@ const PopUp = (props) => {
         if (roomId && start) {
             setTimeout(() => {
                 props.closeMeeting()
-                navigation("/Room")
+                navigation('/room', { state: { parameter: 'call' } });
             }, 1000);
         }
     }, [roomId])

@@ -18,7 +18,7 @@ const Footer = () => {
     }
   };
   return (
-    <div className="w-full h-24 bg-black flex items-center justify-evenly px-20">
+    <div className="w-3/4 h-24 bg-black flex items-center justify-evenly px-20 absolute bottom-0">
       <Button>
         <VideocamOutline
           color={"#fff"}

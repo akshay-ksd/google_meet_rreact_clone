@@ -4,24 +4,13 @@ import { SocketContext } from "../../../../socket/SocketContext";
 const OwnVideo = () => {
   // const myVideo = useRef(null);
   // const [stream, setStream] = useState(null);
-  const {stream,myVideo,loadOwnVideo} = useContext(SocketContext)
+  const {stream,myVideo,loadOwnVideo,userVideo} = useContext(SocketContext)
 
   useEffect(() => {
-    // navigator.mediaDevices.getUserMedia({ audio: true, video: true })
-    //   .then((currentStream) => {
-    //     setStream(currentStream);
-    //     if (myVideo.current) {
-    //       myVideo.current.srcObject = currentStream;
-    //     }
-    //     console.log("myVideo.current", currentStream);
-    //   })
-    //   .catch((error) => {
-    //     console.error('Error accessing media devices:', error);
-    //   });
     loadOwnVideo()
   }, []);
   return (
-    <div className='h-96 bg-black items-center justify-evenly flex'>
+    <div className='bg-black items-center justify-evenly flex h-screen'>
       {
         stream && (
           <video ref={myVideo} autoPlay width="400" height="300" style={{ borderRadius: '10px' }} muted/>
@@ -29,7 +18,7 @@ const OwnVideo = () => {
       } 
        {
         stream && (
-          <video ref={myVideo} autoPlay width="400" height="300" style={{ borderRadius: '10px' }} muted/>
+          <video ref={userVideo} autoPlay width="400" height="300" style={{ borderRadius: '10px' }} muted/>
         )
       } 
     </div>

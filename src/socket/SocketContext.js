@@ -4,7 +4,7 @@ import Peer from "simple-peer";
 
 const SocketContext = createContext();
 
-const socket = io("http://localhost:5000");
+const socket = io("http://192.168.1.130:5000");
 
 const ContextProvider =({children})=>{
     const [stream,setStream] = useState(null);
@@ -20,6 +20,9 @@ const ContextProvider =({children})=>{
     const connectionRef = useRef();
      
     useEffect(()=>{
+        socket.on("newMessage",data=>{
+            console.log("data",data)
+        })
         socket.on("me",(id)=>{setMe(id)});
 
         socket.on("callUser",({from,name:callerName,signal})=>{
@@ -27,7 +30,11 @@ const ContextProvider =({children})=>{
         })
 
         socket.on("newUser",id=>{
-            console.log("id",id)
+            sendPeerData(id)
+        })
+
+        socket.on("peerData",data => {
+            acceptPeerData(data)
         })
     },[])
 
@@ -58,13 +65,14 @@ const ContextProvider =({children})=>{
         setCallAccepted(true);
 
         const peer = new Peer({initiator: false, trickle: false, stream});
+
         peer.on("signal",(data) => {
             socket.emit("answerCall",{signal: data,to: call.from})
         });
 
         peer.on("stream",(currentStream) => {
             // userVideo.current.srcObject = currentStream;
-        })
+        });
 
         peer.signal(call.signal);
 
@@ -79,7 +87,7 @@ const ContextProvider =({children})=>{
         });
 
         peer.on("stream",(currentStream) => {
-            // userVideo.current.srcObject = currentStream;
+            userVideo.current.srcObject = currentStream;
         })
 
         socket.on("callAccepted",(signal) => {
@@ -106,7 +114,44 @@ const ContextProvider =({children})=>{
     }
 
     const joinRoom =(id)=> {
-        socket.emit("joinRoom",id)
+        socket.emit("joinRoom",id,(acknowledgment)=>{
+            setRoomId(id)
+        })
+    }
+
+    const sendPeerData =(id)=>{
+        const peer = new Peer({initiator: true, trickle: false, stream});
+
+        peer.on("signal",(data) => {
+            socket.emit("sendPeerData",{userToCall: id, signalData: data, from: me, name})
+        });
+
+        peer.on("stream",(currentStream) => {
+            userVideo.current.srcObject = currentStream;
+        });
+
+        socket.on("callAccepted",(signal) => {
+            // setCallAccepted(true);
+            peer.signal(signal)
+        });
+
+        connectionRef.current = peer;
+    }
+
+    const acceptPeerData =(data)=>{
+        const peer = new Peer({initiator: false, trickle: false, stream});
+
+        peer.on("signal",(data) => {
+            socket.emit("answerCall",{signal: data,to: call.from})
+        });
+
+        peer.on("stream",(currentStream) => {
+            userVideo.current.srcObject = currentStream;
+        });
+
+        peer.signal(data.signal);
+
+        connectionRef.current = peer;
     }
 
     return (

@@ -17,6 +17,9 @@ function Banner1() {
 
   useEffect(() => {
     if (roomId) {
+      if(!newMeetingPopUp){
+        navigation('/room', { state: { parameter: 'join' } });
+      }
       setTimeout(() => {
         setPop(false)
       }, 2000);
